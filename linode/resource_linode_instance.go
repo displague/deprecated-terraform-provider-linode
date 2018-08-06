@@ -397,7 +397,7 @@ func resourceLinodeInstanceCreate(d *schema.ResourceData, meta interface{}) erro
 			if err != nil {
 				return fmt.Errorf("Failed to generate random password for Linode instance %d", instance.ID)
 			}
-			rootPass := base64.StdEncoding.EncodeToString(rawRootPass)
+			rootPass = base64.StdEncoding.EncodeToString(rawRootPass)
 		}
 
 		diskOpts.RootPass = rootPass
