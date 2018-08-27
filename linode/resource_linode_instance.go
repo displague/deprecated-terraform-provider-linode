@@ -2,6 +2,7 @@ package linode
 
 import (
 	"context"
+	"crypto/rand"
 	"encoding/base64"
 	"fmt"
 	"strconv"
@@ -381,7 +382,17 @@ func resourceLinodeInstanceCreate(d *schema.ResourceData, meta interface{}) erro
 	if image, ok := d.GetOk("image"); ok {
 		diskOpts.Image = image.(string)
 
-		diskOpts.RootPass = d.Get("root_password").(string)
+		rootPass := d.Get("root_password").(string)
+		if rootPass == "random" {
+			rawRootPass := make([]byte, 50)
+			_, err := rand.Read(rawRootPass)
+			if err != nil {
+				return fmt.Errorf("Failed to generate random password for Linode instance %d", instance.ID)
+			}
+			rootPass = base64.StdEncoding.EncodeToString(rawRootPass)
+		}
+
+		diskOpts.RootPass = rootPass
 
 		if sshKeys, ok := d.GetOk("ssh_key"); ok {
 			if sshKeysArr, ok := sshKeys.([]interface{}); ok {
